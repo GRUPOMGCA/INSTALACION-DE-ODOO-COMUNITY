@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_libro_ventas" model="ir.actions.report">
+        <field name="name">Libro de Ventas</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">gmg_ve.report_ventas_template</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <menuitem id="menu_libro_ventas" 
+              name="Libro de Ventas" 
+              parent="account.menu_finance_reports" 
+              action="action_report_libro_ventas" 
+              sequence="10"/>
+</odoo>

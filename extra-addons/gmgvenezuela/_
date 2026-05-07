@@ -1,0 +1,8 @@
+{
+    'name': 'Libros Fiscales Venezuela GMG',
+    'version': '17.0.1.0.0',
+    'author': 'Grupo Mosquera Gerardo',
+    'depends': ['account'],
+    'installable': True,
+    'application': True,
+}  manifest .py
