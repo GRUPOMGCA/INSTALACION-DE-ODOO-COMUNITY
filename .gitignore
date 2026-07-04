@@ -1,4 +1,9 @@
-*.log
-*.sql
-*.gz
+# Carpetas que NO queremos subir
+odoo-db-data/
+backups/
+extra-addons_backup_old/
 data/
+pycache/
+*.pyc
+*.log
+*.gz

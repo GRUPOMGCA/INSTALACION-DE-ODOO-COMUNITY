@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_gmg_cotizacion" model="ir.actions.report">
+        <field name="name">Cotización GMG FINAL</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">gmg_formatos.report_cotizacion_gmg_final</field>
+        <field name="report_file">gmg_formatos.report_cotizacion_gmg_final</field>
+        <field name="print_report_name">'Cotizacion - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_cotizacion_gmg_final">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <!-- Aquí NO usamos external_layout para evitar que Odoo se meta -->
+                <div class="article" style="padding: 20px;">
+                    
+                    <!-- ENCABEZADO PERSONALIZADO (Aquí pondrás tus datos fijos) -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h2>Grupo Mosquera Gerardo, C. A. (G.M.G.)</h2>
+                            <p>Tu información de contacto aquí...</p>
+                        </div>
+                    </div>
+
+                    <!-- CUERPO DEL REPORTE -->
+                    <div class="page">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h1>Cotización: <span t-field="doc.name"/></h1>
+                            </div>
+                        </div>
+                        
+                        <!-- Resto de tu tabla y lógica de moneda -->
+                        <!-- ... (aquí mantendremos la lógica de precios que necesitas) ... -->
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

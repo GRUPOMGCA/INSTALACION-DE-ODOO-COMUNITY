@@ -1,0 +1,80 @@
+import xmlrpc.client
+import requests
+from datetime import datetime
+
+# --- CONFIGURACIÓN ---
+url = 'http://localhost:8069'
+db = 'master_final'
+username = 'grupomg.com.ve@gmail.com'
+password = 'Tico$8759'
+
+def get_bcv_rate():
+    import urllib3
+    import ssl
+    
+    # 1. Forzamos a urllib3 a usar TLS moderno para evitar fallas de Handshake
+    class TLSAdapter(requests.adapters.HTTPAdapter):
+        def init_poolmanager(self, *args, **kwargs):
+            ctx = ssl.create_default_context()
+            ctx.set_ciphers('DEFAULT@SECLEVEL=1') # Permite compatibilidad de cifrado amplia
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+            kwargs['ssl_context'] = ctx
+            return super(TLSAdapter, self).init_poolmanager(*args, **kwargs)
+
+    try:
+        session = requests.Session()
+        session.mount("https://", TLSAdapter())
+        
+        # 2. Agregamos un User-Agent real para simular un navegador común
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        
+        response = session.get("https://ve.dolarapi.com/v1/dolares/oficial", headers=headers, timeout=15)
+        data = response.json()
+        return float(data['promedio'])
+    except Exception as e:
+        print(f"Error obteniendo tasa del BCV: {e}")
+        return None
+
+def update_odoo_rate(rate):
+    try:
+        common = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/common')
+        uid = common.authenticate(db, username, password, {})
+        models = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/object')
+        
+        currency_ids = models.execute_kw(db, uid, password, 'res.currency', 'search', [[['name', '=', 'USD']]])
+        
+        if currency_ids:
+            currency_id = currency_ids[0]
+            tasa_inversa = 1.0 / float(rate)
+            fecha_hoy = datetime.now().strftime('%Y-%m-%d')
+            
+            # Buscar si ya existe una tasa para hoy
+            existing_rate_ids = models.execute_kw(db, uid, password, 'res.currency.rate', 'search', 
+                                                [[('currency_id', '=', currency_id), ('name', '=', fecha_hoy)]])
+            
+            if existing_rate_ids:
+                # Si existe, actualizamos la existente
+                tasa_inversa = 1.0 / float(tasa_bcv)
+models.execute_kw(db, uid, password, 'res.currency.rate', 'create', [{
+    'currency_id': 3,
+    'rate': tasa_inversa,
+    'name': fecha_hoy
+}])
+                print(f"✅ Tasa actualizada para hoy: {tasa_inversa}")
+            else:
+                # Si no existe, creamos una nueva
+                models.execute_kw(db, uid, password, 'res.currency.rate', 'create', [{
+                    'currency_id': currency_id,
+                    'rate': tasa_inversa,
+                    'name': fecha_hoy,
+                }])
+                print(f"✅ Nuevo registro de tasa creado para hoy.")
+    except Exception as e:
+        print(f"x ERROR DETALLADO: {str(e)}")
+# --- EJECUCIÓN ---
+val_rate = get_bcv_rate()
+if val_rate:
+    print(f"Tasa BCV detectada: {val_rate}")
+    update_odoo_rate(val_rate)

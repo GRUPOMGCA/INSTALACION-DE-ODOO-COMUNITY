@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  web:
+    image: odoo:17.0
+    container_name: odoo-gmg-web-1
+    restart: always
+    depends_on:
+      - db
+    command: /entrypoint.sh odoo --max-cron-threads=1
+    ports:
+      - "8069:8069"
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=Tico8759
+    volumes:
+      - ./odoo-data:/var/lib/odoo
+      - ./extra-addons:/mnt/extra-addons
+
+  db:
+    image: postgres:15
+    container_name: odoo-gmg-db-1
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=Tico8759
+      - POSTGRES_USER=odoo
+    volumes:
+      - ./odoo-db-data:/var/lib/postgresql/data
+db-pruebas:
+    image: postgres:15
+    container_name: odoo-gmg-db-pruebas
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=Tico8759
+      - POSTGRES_USER=odoo
+    volumes:
+      - ./odoo-db-data-pruebas:/var/lib/postgresql/data
+
+  web-pruebas:
+    image: odoo:17.0
+    container_name: odoo-gmg-web-pruebas
+    restart: always
+    depends_on:
+      - db-pruebas
+    command: /entrypoint.sh odoo --max-cron-threads=1
+    ports:
+      - "8070:8069"
+    environment:
+      - HOST=db-pruebas
+      - USER=odoo
+      - PASSWORD=Tico8759
+    volumes:
+      - ./odoo-data-pruebas:/var/lib/odoo
+      - ./extra-addons:/mnt/extra-addons

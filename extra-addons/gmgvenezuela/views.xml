@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <menuitem id="menu_libros_fiscales_root" name="Libros Fiscales" parent="account.menu_finance_reports" sequence="100"/>
-    <menuitem id="menu_libro_ventas" name="Libro de Ventas" parent="menu_libros_fiscales_root" action="account.action_move_out_invoice_type" sequence="10"/>
-    <menuitem id="menu_libro_compras" name="Libro de Compras" parent="menu_libros_fiscales_root" action="account.action_move_in_invoice_type" sequence="20"/>
-</odoo>
